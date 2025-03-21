@@ -336,6 +336,22 @@ paths:
                 items:
                   $ref: '#/components/schemas/ProjectRead'
           description: List of projects
+    post:
+      summary: Create a new project
+      operationId: createProject
+      tags: [ 'projects' ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRead'
+          description: The created project
   /{administrationId}/projects/{projectId}:
     summary: Project
     parameters:
@@ -796,9 +812,6 @@ components:
             updated_at: "2023-05-09T09:26:35.847Z"
     Project:
       type: object
-      required:
-        - name
-        - budget
       description: Object which describes a project
       properties:
         id:
@@ -809,6 +822,22 @@ components:
           type: string
         budget:
           type: number
+    ProjectCreate:
+      description: Object for creating a project
+      type: object
+      required:
+        - project
+      properties:
+        project:
+          type: object
+          required:
+            - name
+            - budget
+          properties:
+            name:
+              type: string
+            budget:
+              type: number
     ProjectRead:
       description: Object for when reading projects
       allOf:
@@ -1224,39 +1253,37 @@ components:
       allOf:
         - $ref: '#/components/schemas/TimeEntry'
     TimeEntryCreate:
-      description: Object for when creating time entries
+      description: Object for creating a time entry
+      type: object
       required:
-        - user_id
-        - started_at
-        - ended_at
-        - description
-      allOf:
-        - $ref: '#/components/schemas/TimeEntry'
-        - type: object
+        - time_entry
+      properties:
+        time_entry:
+          type: object
+          required:
+            - user_id
+            - started_at
+            - ended_at
+            - description
           properties:
-            time_entry:
-              type: array
-              items:
-                type: object
-                properties:
-                  user_id:
-                    type: string
-                  started_at:
-                    type: string
-                  ended_at:
-                    type: string
-                  description:
-                    type: string
-                  contact_id:
-                    type: string
-                  project_id:
-                    type: string
-                  detail_id:
-                    type: string
-                  billable:
-                    type: boolean
-                  paused_duration:
-                    type: number
+            user_id:
+              type: string
+            started_at:
+              type: string
+            ended_at:
+              type: string
+            description:
+              type: string
+            contact_id:
+              type: string
+            project_id:
+              type: string
+            detail_id:
+              type: string
+            billable:
+              type: boolean
+            paused_duration:
+              type: number
   securitySchemes:
     OAuth2:
       flows:
