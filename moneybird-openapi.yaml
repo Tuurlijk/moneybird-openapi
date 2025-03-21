@@ -13,7 +13,7 @@ paths:
       summary: List all administrations
       description: This endpoint returns all administrations associated with the account
       operationId: getAdministrations
-      tags: ['administrations']
+      tags: [ 'administrations' ]
       responses:
         '200':
           description: A successful response
@@ -35,7 +35,38 @@ paths:
     get:
       summary: Retrieve all contacts
       operationId: getContacts
-      tags: ['contacts']
+      tags: [ 'contacts' ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          required: false
+          description: 'The page number to retrieve (for pagination)'
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+          required: false
+          description: 'The number of contacts per page (max 100)'
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: false
+          description: 'A search query to filter contacts by name, email, or other searchable fields'
+        - in: query
+          name: include_archived
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: 'Include archived contacts'
       responses:
         '200':
           content:
@@ -48,7 +79,7 @@ paths:
     post:
       summary: Create a new contact
       operationId: createContact
-      tags: ['contacts']
+      tags: [ 'contacts' ]
       requestBody:
         content:
           application/json:
@@ -56,7 +87,11 @@ paths:
               $ref: '#/components/schemas/ContactCreate'
       responses:
         '201':
-          $ref: '#/components/schemas/ContactRead'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactRead'
+          description: The created contact
   /{administrationId}/contacts/{contactId}:
     summary: Contact
     parameters:
@@ -75,7 +110,7 @@ paths:
     get:
       summary: Get contact
       operationId: getContact
-      tags: ['contacts']
+      tags: [ 'contacts' ]
       responses:
         '200':
           content:
@@ -86,7 +121,7 @@ paths:
     patch:
       summary: Update a contact
       operationId: updateContact
-      tags: ['contacts']
+      tags: [ 'contacts' ]
       requestBody:
         content:
           application/json:
@@ -94,7 +129,46 @@ paths:
               $ref: '#/components/schemas/ContactUpdate'
       responses:
         '200':
-          $ref: '#/components/schemas/ContactRead'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactRead'
+          description: The updated contact
+    delete:
+      summary: Delete a contact
+      operationId: deleteContact
+      tags: [ 'contacts' ]
+      responses:
+        '204':
+          description: Contact successfully deleted
+        '404':
+          description: Contact not found
+  /{administrationId}/contacts/customer_id/{customerId}:
+    summary: Contact
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+      - in: path
+        required: true
+        name: customerId
+        schema:
+          type: string
+        description: The cutomer id you want to retrieve contacts for
+    get:
+      summary: Get contacts by customer id
+      operationId: getContactsByCustomerId
+      tags: [ 'contacts' ]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactRead'
+          description: The requested contact
   /{administrationId}/documents/purchase_invoices:
     summary: 'Documents: Purchase invoices'
     parameters:
@@ -107,7 +181,44 @@ paths:
     get:
       summary: Get purchase invoices
       operationId: getPurchaseInvoices
-      tags: ['purchase_invoices']
+      tags: [ 'purchase_invoices' ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          required: false
+          description: 'The page number to retrieve (for pagination)'
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+          required: false
+          description: 'The number of contacts per page (max 100)'
+        - in: query
+          name: filter
+          schema:
+            type: string
+          required: false
+          description: 'The filter argument allows you to filter on the list of documents. Filters are a combination of keys and values, separated by a comma: key:value,key2:value2. The most common filter method will be period: period:this_month. Filtering works the same as in the web application, for more advanced examples, change the filtering in the web application and learn from the resulting URI.'
+        - in: query
+          name: new_filter
+          schema:
+            type: string
+          required: false
+          description: 'The filter argument allows you to filter on the list of documents. Filters are a combination of keys and values, separated by a comma: key:value,key2:value2. The most common filter method will be period: period:this_month. Filtering works the same as in the web application, for more advanced examples, change the filtering in the web application and learn from the resulting URI.'
+        - in: query
+          name: exclude_new_general_journal_documents
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: 'Exclude new general journal documents'
       responses:
         '200':
           content:
@@ -120,7 +231,7 @@ paths:
     post:
       summary: Create a new purchase invoice document
       operationId: createPurchaseInvoice
-      tags: ['purchase_invoices']
+      tags: [ 'purchase_invoices' ]
       requestBody:
         content:
           application/json:
@@ -128,7 +239,11 @@ paths:
               $ref: '#/components/schemas/PurchaseInvoiceCreate'
       responses:
         '201':
-          $ref: '#/components/schemas/PurchaseInvoiceRead'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseInvoiceRead'
+          description: The created purchase invoice
   /{administrationId}/documents/purchase_invoices/{purchaseInvoicesId}:
     summary: 'Documents: Purchase invoice'
     parameters:
@@ -147,7 +262,7 @@ paths:
     get:
       summary: Get purchase invoice
       operationId: getPurchaseInvoice
-      tags: ['purchase_invoices']
+      tags: [ 'purchase_invoices' ]
       responses:
         '200':
           content:
@@ -158,7 +273,7 @@ paths:
     patch:
       summary: Update a purchase invoice
       operationId: updatePurchaseInvoice
-      tags: ['purchase_invoices']
+      tags: [ 'purchase_invoices' ]
       requestBody:
         content:
           application/json:
@@ -166,7 +281,112 @@ paths:
               $ref: '#/components/schemas/PurchaseInvoiceUpdate'
       responses:
         '200':
-          $ref: '#/components/schemas/PurchaseInvoiceRead'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseInvoiceRead'
+          description: The updated purchase invoice
+  /{administrationId}/projects:
+    summary: Projects
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: 'The administration you want to access'
+    get:
+      summary: Retrieve all projects
+      operationId: getProjects
+      tags: [ 'projects' ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          required: false
+          description: 'The page number to retrieve (for pagination)'
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+          required: false
+          description: 'The number of projects per page (max 100)'
+        - in: query
+          name: filter
+          schema:
+            type: string
+            enum:
+              - state:all
+              - state:archived
+              - state:active
+          required: false
+          description: 'The filter argument allows you to filter on the list of documents. Filters are a combination of keys and values, separated by a comma: key:value,key2:value2. The most common filter method will be period: period:this_month. Filtering works the same as in the web application, for more advanced examples, change the filtering in the web application and learn from the resulting URI.'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectRead'
+          description: List of projects
+  /{administrationId}/projects/{projectId}:
+    summary: Project
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+      - in: path
+        required: true
+        name: projectId
+        schema:
+          type: string
+        description: The id of the project you want to retrieve
+    get:
+      summary: Get project
+      operationId: getProject
+      tags: [ 'projects' ]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRead'
+          description: The requested project
+    patch:
+      summary: Update a project
+      operationId: updateProject
+      tags: [ 'projects' ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRead'
+          description: The updated project
+    delete:
+      summary: Delete a project
+      operationId: deleteProject
+      tags: [ 'projects' ]
+      responses:
+        '204':
+          description: Project successfully deleted
+        '404':
+          description: Project not found
 components:
   schemas:
     Administration:
@@ -345,13 +565,13 @@ components:
         - type: object
           properties:
             id:
-              type: integer
+              type: string
             administration_id:
-              type: integer
+              type: string
             notes:
               type: array
               items:
-                type: string
+                $ref: '#/components/schemas/Note'
             custom_fields:
               type: array
               items:
@@ -362,9 +582,9 @@ components:
                 type: object
                 properties:
                   id:
-                    type: integer
+                    type: string
                   administration_id:
-                    type: integer
+                    type: string
                   firstname:
                     type: string
                   lastname:
@@ -389,7 +609,7 @@ components:
                 $ref: '#/components/schemas/Event'
       example:
         id: "387348560989914801"
-        administration_id: 123
+        administration_id: "412839047230990"
         company_name: "Foobar Holding B.V."
         firstname: null
         lastname: "Appleseed"
@@ -432,11 +652,11 @@ components:
         updated_at: "2023-05-09T09:26:35.852Z"
         version: 1683624395
         sales_invoices_url: "http://moneybird.dev/123/sales_invoices/2d977c4c1ec0f1e7feff0df2b0411a3a4960e29a5bc785bfe30dd974ca9a2e10/all"
-        notes: []
-        custom_fields: []
+        notes: [ ]
+        custom_fields: [ ]
         contact_people:
           - id: 387348560997254835
-            administration_id: 123
+            administration_id: "412839047230990"
             firstname: "John"
             lastname: "Appleseed"
             phone: null
@@ -447,14 +667,52 @@ components:
             version: 1683624395
         archived: false
         events:
-          - administration_id: 123
+          - administration_id: "412839047230990"
             user_id: 16836243678565
             action: "contact_created"
             link_entity_id: null
             link_entity_type: null
-            data: {}
+            data: { }
             created_at: "2023-05-09T09:26:35.847Z"
             updated_at: "2023-05-09T09:26:35.847Z"
+    Project:
+      type: object
+      required:
+        - name
+        - budget
+      description: Object which describes a project
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        state:
+          type: string
+        budget:
+          type: number
+    ProjectRead:
+      description: Object for when reading projects
+      allOf:
+        - $ref: '#/components/schemas/Project'
+        - type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            state:
+              type: string
+            budget:
+              type: number
+      example:
+        id: "446241767953532430"
+        name: "Project Blackbird"
+        state: "archived"
+        budget: 10
+    ProjectUpdate:
+      description: Object for when updating projects.
+      allOf:
+        - $ref: '#/components/schemas/Project'
     PurchaseInvoice:
       description: Object which describes a purchase invoice document.
       type: object
@@ -464,8 +722,12 @@ components:
         - date
       properties:
         contact_id:
-          type: integer
+          type: string
+          nullable: true
           description: Should be a valid contact id.
+        contact:
+          $ref: '#/components/schemas/ContactRead'
+          nullable: true
         reference:
           type: string
         date:
@@ -496,23 +758,29 @@ components:
         - type: object
           properties:
             id:
-              type: integer
+              type: string
             administration_id:
-              type: integer
+              type: string
+            contact_id:
+              type: string
+              nullable: true
             contact:
               $ref: '#/components/schemas/ContactRead'
+              nullable: true
             entry_number:
               type: integer
             state:
               type: string
             exchange_rate:
-              type: number
+              type: string
             origin:
               type: string
             paid_at:
               type: string
+              nullable: true
             tax_number:
               type: string
+              nullable: true
             total_price_excl_tax:
               type: number
             total_price_excl_tax_base:
@@ -538,7 +806,7 @@ components:
             notes:
               type: array
               items:
-                type: string
+                $ref: '#/components/schemas/Note'
             attachments:
               type: array
               items:
@@ -555,7 +823,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         description:
           type: string
         period:
@@ -585,7 +853,7 @@ components:
         - type: object
           properties:
             administration_id:
-              type: integer
+              type: string
             amount_decimal:
               type: number
             description:
@@ -600,13 +868,27 @@ components:
                 type: string
             mandatory_tax_text:
               type: string
+              nullable: true
+            product_id:
+              type: integer
+              nullable: true
+            period:
+              type: string
+              nullable: true
+            project_id:
+              type: integer
+              nullable: true
             created_at:
               type: string
             updated_at:
               type: string
+            time_entries:
+              type: array
+              items:
+                type: object
     CustomField:
       type: object
-      required: 
+      required:
         - id
         - value
       properties:
@@ -627,12 +909,12 @@ components:
           type: string
         link_entity_id:
           type: string
+          nullable: true
         link_entity_type:
           type: string
+          nullable: true
         data:
-          type: array
-          items:
-            type: object
+          type: object
         created_at:
           type: string
         updated_at:
@@ -641,11 +923,11 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         administration_id:
-          type: integer
+          type: string
         attachable_id:
-          type: integer
+          type: string
         attachable_type:
           type: string
         filename:
@@ -666,7 +948,7 @@ components:
         id:
           type: integer
         administration_id:
-          type: integer
+          type: string
         invoice_type:
           type: string
         invoice_id:
@@ -699,6 +981,41 @@ components:
           type: string
         updated_at:
           type: string
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+        administration_id:
+          type: string
+        entity_id:
+          type: string
+        entity_type:
+          type: string
+        user_id:
+          type: string
+        assignee_id:
+          type: string
+          nullable: true
+        todo:
+          type: boolean
+        note:
+          type: string
+          nullable: true
+        completed_at:
+          type: string
+          nullable: true
+        completed_by_id:
+          type: string
+          nullable: true
+        todo_type:
+          type: string
+        data:
+          type: object
+        created_at:
+          type: string
+        updated_at:
+          type: string
   securitySchemes:
     OAuth2:
       flows:
@@ -721,11 +1038,11 @@ components:
       description: >-
         An API token is only meant for personal use. You can obtain one from
         https://moneybird.com/user/applications/new
-  responses: {}
-  parameters: {}
+  responses: { }
+  parameters: { }
 security:
-  - ApiToken: []
-  - OAuth2: []
+  - ApiToken: [ ]
+  - OAuth2: [ ]
 tags:
   - name: administrations
     externalDocs:
