@@ -387,6 +387,125 @@ paths:
           description: Project successfully deleted
         '404':
           description: Project not found
+  /{administrationId}/time_entries:
+    summary: TimeEntries
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: 'The administration you want to access'
+    get:
+      summary: Retrieve all time entries
+      operationId: getTimeEntries
+      tags: [ 'time_entries' ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          required: false
+          description: 'The page number to retrieve (for pagination)'
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+          required: false
+          description: 'The number of time_entries per page (max 100)'
+        - in: query
+          name: filter
+          schema:
+            type: string
+          required: false
+          description: 'The filter argument allows you to filter the list of time entries. Filters are a combination of keys and values, separated by a comma: period:this_year,state:all. See API documentation for more info'
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: false
+          description: 'Allows filtering by time entry description.'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeEntryRead'
+          description: List of time entries
+    post:
+      summary: Create a new time entry
+      operationId: createTimeEntry
+      tags: [ 'time_entries' ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeEntryCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeEntryRead'
+          description: The created time entry
+  /{administrationId}/time_entries/{timeEntryId}:
+    summary: TimeEntry
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+      - in: path
+        required: true
+        name: timeEntryId
+        schema:
+          type: string
+        description: The id of the time entry you want to retrieve
+    get:
+      summary: Get time entry
+      operationId: getTimeEntry
+      tags: [ 'time_entries' ]
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeEntryRead'
+          description: The requested time_entry
+    patch:
+      summary: Update a time entry
+      operationId: updateTimeEntry
+      tags: [ 'time_entries' ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeEntryUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeEntryRead'
+          description: The updated time_entry
+    delete:
+      summary: Delete a time entry
+      operationId: deleteTimeEntry
+      tags: [ 'time_entries' ]
+      responses:
+        '204':
+          description: TimeEntry successfully deleted
+        '404':
+          description: TimeEntry not found
 components:
   schemas:
     Administration:
@@ -497,7 +616,7 @@ components:
         direct_debit:
           type: boolean
     ContactUpdate:
-      description: Object for when creating contacts.
+      description: Object for when updating contacts.
       allOf:
         - $ref: '#/components/schemas/Contact'
         - type: object
@@ -1016,6 +1135,128 @@ components:
           type: string
         updated_at:
           type: string
+    TimeEntry:
+      type: object
+      required:
+        - user_id
+        - started_at
+        - ended_at
+        - description
+      description: Object which describes a time entry
+      properties:
+        id:
+          type: string
+        administration_id:
+          type: string
+        contact_id:
+          type: string
+        project_id:
+          type: string
+        user_id:
+          type: string
+        description:
+          type: string
+        paused_duration:
+          type: number
+        billable:
+          type: boolean
+        started_at:
+          type: string
+        ended_at:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+      example:
+        id: "446241830577636389"
+        administration_id: 123
+        contact_id: "446241830553519137"
+        project_id: "446241830564004899"
+        user_id: 17397890963220
+        started_at: "2025-02-17T10:49:00.000Z"
+        ended_at: "2025-02-17T11:49:00.000Z"
+        description: "Test"
+        paused_duration: 0
+        billable: true
+        created_at: "2025-02-17T10:49:54.448Z"
+        updated_at: "2025-02-17T10:49:54.448Z"
+        contact:
+          id: "446241830553519137"
+          firstname: ""
+          lastname: ""
+          company_name: "Foobar Holding B.V."
+        detail: null
+        user:
+          id: 17397890963220
+          name: "Moneybird"
+          created_at: "2025-02-17T10:44:56.885Z"
+          updated_at: "2025-02-17T10:44:57.120Z"
+        project:
+          id: "446241830564004899"
+          name: "My project name"
+          state: "active"
+          budget: 10
+        events:
+          - administration_id: 123
+            user_id: 17397890963220
+            action: "time_entry_created"
+            link_entity_id: null
+            link_entity_type: null
+            data: { }
+            created_at: "2025-02-17T10:49:54.450Z"
+            updated_at: "2025-02-17T10:49:54.450Z"
+        notes: [ ]
+    TimeEntryRead:
+      description: Object for when reading time entries
+      allOf:
+        - $ref: '#/components/schemas/TimeEntry'
+    TimeEntryUpdate:
+      description: Object for when updating time entries
+      allOf:
+        - $ref: '#/components/schemas/TimeEntry'
+    TimeEntryCreate:
+      description: Object for when creating time entries
+      required:
+        - user_id
+        - started_at
+        - ended_at
+        - description
+      allOf:
+        - $ref: '#/components/schemas/TimeEntry'
+        - type: object
+          properties:
+            time_entry:
+              type: array
+              items:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                  started_at:
+                    type: string
+                  ended_at:
+                    type: string
+                  description:
+                    type: string
+                  contact_id:
+                    type: string
+                  project_id:
+                    type: string
+                  detail_id:
+                    type: string
+                  billable:
+                    type: boolean
+                  paused_duration:
+                    type: number
   securitySchemes:
     OAuth2:
       flows:
