@@ -708,6 +708,27 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+  /{administrationId}/verifications:
+    summary: Verifications
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+    get:
+      summary: Get verified details
+      description: Returns all verified email addresses and bank account numbers, as well as the verified chamber of commerce number and tax number for the specified administration.
+      operationId: getVerifications
+      tags: [ 'verifications' ]
+      responses:
+        '200':
+          description: A successful response containing verified details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verifications'
 components:
   schemas:
     Administration:
@@ -1789,6 +1810,36 @@ components:
           - "settings"
           - "ownership"
           - "time_entries"
+    Verifications:
+      type: object
+      properties:
+        emails:
+          type: array
+          items:
+            type: string
+          description: List of verified email addresses.
+        bank_account_numbers:
+          type: array
+          items:
+            type: string
+          description: List of verified bank account numbers or IBANs.
+        chamber_of_commerce_number:
+          type: string
+          nullable: true
+          description: The verified chamber of commerce registration number, if available.
+        tax_number:
+          type: string
+          nullable: true
+          description: The verified tax identification number, if available.
+      example:
+        emails:
+          - "validated1@dev.null.moneybird.net"
+          - "validated2@dev.null.moneybird.net"
+        bank_account_numbers:
+          - "NL42TEST0000000002"
+        chamber_of_commerce_number: "12345678"
+        tax_number: "NL852924574B01"
+      description: Object containing verified details for an administration.
   securitySchemes:
     OAuth2:
       type: oauth2
@@ -1840,3 +1891,6 @@ tags:
   - name: users
     externalDocs:
       url: 'https://developer.moneybird.com/api/users/'
+  - name: verifications
+    externalDocs:
+      url: 'https://developer.moneybird.com/api/verifications/'
