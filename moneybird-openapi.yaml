@@ -310,6 +310,137 @@ paths:
               schema:
                 $ref: '#/components/schemas/PurchaseInvoiceRead'
           description: The updated purchase invoice
+  /{administrationId}/identities:
+    summary: Identities
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+    get:
+      summary: List all identities
+      description: This endpoint returns all identities associated with the administration, excluding the default identity.
+      operationId: getIdentities
+      tags: [ 'identities' ]
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IdentityRead'
+    post:
+      summary: Create a new identity
+      operationId: createIdentity
+      tags: [ 'identities' ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityCreate'
+      responses:
+        '201':
+          description: The created identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityRead'
+  /{administrationId}/identities/default:
+    summary: Default Identity
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+    get:
+      summary: Get default identity
+      description: This endpoint returns the default identity associated with the administration, including additional administration attributes.
+      operationId: getDefaultIdentity
+      tags: [ 'identities' ]
+      responses:
+        '200':
+          description: The default identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultIdentityRead'
+    patch:
+      summary: Update default identity
+      description: Updates the default identity, allowing changes to company details and administration attributes.
+      operationId: updateDefaultIdentity
+      tags: [ 'identities' ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityDefaultPatch'
+      responses:
+        '200':
+          description: The updated default identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultIdentityRead'
+  /{administrationId}/identities/{id}:
+    summary: Identity
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+      - in: path
+        required: true
+        name: id
+        schema:
+          type: string
+        description: The identity you want to retrieve, update, or delete
+    get:
+      summary: Get identity
+      description: Retrieves a specific identity by its ID.
+      operationId: getIdentity
+      tags: [ 'identities' ]
+      responses:
+        '200':
+          description: The requested identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityRead'
+    patch:
+      summary: Update identity
+      description: Updates a specific identity, supporting partial updates to company details and custom fields.
+      operationId: updateIdentity
+      tags: [ 'identities' ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityPatch'
+      responses:
+        '200':
+          description: The updated identity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityRead'
+    delete:
+      summary: Delete identity
+      description: Deletes a specific identity. Attempting to delete the default identity will return a 404 error.
+      operationId: deleteIdentity
+      tags: [ 'identities' ]
+      responses:
+        '204':
+          description: Identity successfully deleted
+        '404':
+          description: Identity not found or cannot delete default identity
   /{administrationId}/projects:
     summary: Projects
     parameters:
@@ -887,6 +1018,246 @@ components:
           type: string
         source:
           type: string
+    Identity:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the identity.
+        company_name:
+          type: string
+          description: The name of the company.
+        address1:
+          type: string
+          description: The primary address line.
+        address2:
+          type: string
+          nullable: true
+          description: The secondary address line.
+        zipcode:
+          type: string
+          description: The postal code.
+        city:
+          type: string
+          description: The city.
+        country:
+          type: string
+          description: ISO two-character country code (e.g., NL, DE).
+        email:
+          type: string
+          description: The email address associated with the identity.
+        phone:
+          type: string
+          nullable: true
+          description: The phone number.
+        bank_account_name:
+          type: string
+          nullable: true
+          description: The name on the bank account.
+        bank_account_number:
+          type: string
+          nullable: true
+          description: The bank account number or IBAN.
+        bank_account_bic:
+          type: string
+          nullable: true
+          description: The BIC/SWIFT code of the bank account.
+        chamber_of_commerce:
+          type: string
+          nullable: true
+          description: The chamber of commerce registration number.
+        tax_number:
+          type: string
+          nullable: true
+          description: The tax identification number.
+        tax_number_absence_reason:
+          type: string
+          nullable: true
+          description: Reason for absence of a tax number, if applicable.
+        custom_fields:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              value:
+                type: string
+          description: Custom field values associated with the identity.
+    IdentityRead:
+      allOf:
+        - $ref: '#/components/schemas/Identity'
+      description: Object describing a non-default identity returned by GET operations.
+    DefaultIdentityRead:
+      allOf:
+        - $ref: '#/components/schemas/Identity'
+        - type: object
+          properties:
+            administration:
+              type: object
+              required:
+                - adyen_processed_funds
+              properties:
+                adyen_processed_funds:
+                  type: boolean
+                  description: Indicates if funds are processed via Adyen.
+                company_activities_description:
+                  type: string
+                  nullable: true
+                  description: Description of company activities.
+                company_website_url:
+                  type: string
+                  nullable: true
+                  description: The company website URL.
+                company_website_absent:
+                  type: boolean
+                  nullable: true
+                  description: Indicates if the company has no website.
+                legal_entity_type:
+                  type: string
+                  nullable: true
+                  description: The legal entity type (e.g., "sole_trader").
+          description: The default identity, including additional administration attributes.
+    IdentityCreate:
+      type: object
+      required:
+        - company_name
+        - country
+        - city
+        - zipcode
+        - address1
+        - email
+        - bank_account_number
+      properties:
+        company_name:
+          type: string
+          description: The name of the company.
+        address1:
+          type: string
+          description: The primary address line.
+        address2:
+          type: string
+          nullable: true
+          description: The secondary address line.
+        zipcode:
+          type: string
+          description: The postal code.
+        city:
+          type: string
+          description: The city.
+        country:
+          type: string
+          description: ISO two-character country code (e.g., NL, DE).
+        email:
+          type: string
+          description: The email address associated with the identity.
+        phone:
+          type: string
+          nullable: true
+          description: The phone number.
+        bank_account_name:
+          type: string
+          nullable: true
+          description: The name on the bank account.
+        bank_account_number:
+          type: string
+          description: The bank account number or IBAN.
+        bank_account_bic:
+          type: string
+          nullable: true
+          description: The BIC/SWIFT code of the bank account.
+        custom_fields_attributes:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - value
+            properties:
+              id:
+                type: integer
+              value:
+                type: string
+          description: Custom field values to set for the new identity.
+      description: Object for creating a new identity.
+    IdentityPatch:
+      type: object
+      properties:
+        company_name:
+          type: string
+          description: The name of the company.
+        address1:
+          type: string
+          description: The primary address line.
+        address2:
+          type: string
+          nullable: true
+          description: The secondary address line.
+        zipcode:
+          type: string
+          description: The postal code.
+        city:
+          type: string
+          description: The city.
+        country:
+          type: string
+          description: ISO two-character country code (e.g., NL, DE).
+        email:
+          type: string
+          description: The email address associated with the identity.
+        phone:
+          type: string
+          nullable: true
+          description: The phone number.
+        bank_account_name:
+          type: string
+          nullable: true
+          description: The name on the bank account.
+        bank_account_number:
+          type: string
+          nullable: true
+          description: The bank account number or IBAN.
+        bank_account_bic:
+          type: string
+          nullable: true
+          description: The BIC/SWIFT code of the bank account.
+        custom_fields_attributes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              value:
+                type: string
+          description: Custom field values to update for the identity.
+      description: Object for updating a non-default identity, supporting partial updates.
+    IdentityDefaultPatch:
+      allOf:
+        - $ref: '#/components/schemas/IdentityPatch'
+        - type: object
+          properties:
+            administration_attributes:
+              type: object
+              properties:
+                company_activities_description:
+                  type: string
+                  nullable: true
+                  description: Description of company activities.
+                company_website_url:
+                  type: string
+                  nullable: true
+                  description: The company website URL.
+                company_website_absent:
+                  type: boolean
+                  nullable: true
+                  description: Indicates if the company has no website.
+                legal_entity_type:
+                  type: string
+                  nullable: true
+                  description: The legal entity type (e.g., "sole_trader").
+          description: Additional administration attributes for updating the default identity.
+      description: Object for updating the default identity, including administration attributes, supporting partial updates.
     Project:
       type: object
       description: Object which describes a project
@@ -1454,6 +1825,9 @@ tags:
   - name: custom_fields
     externalDocs:
       url: 'https://developer.moneybird.com/api/custom_fields/'
+  - name: identities
+    externalDocs:
+      url: 'https://developer.moneybird.com/api/identities/'
   - name: projects
     externalDocs:
       url: 'https://developer.moneybird.com/api/projects/'
