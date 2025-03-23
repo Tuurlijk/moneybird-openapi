@@ -1,0 +1,20 @@
+services:
+  swagger:
+    image: swaggerapi/swagger-ui
+    container_name: moneybird_openapi_swagger
+    volumes:
+      - ./moneybird-openapi.yaml:/swag/moneybird-openapi.yaml
+    environment:
+      SWAGGER_JSON: /swag/moneybird-openapi.yaml
+      CONFIG_URL: /moneybird-openapi.yaml
+      CORS: "true"
+    ports:
+      - "8080"
+
+  proxy:
+    image: nginx:alpine
+    container_name: moneybird_openapi_proxy
+    volumes:
+      - ./.docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "3000:80" # If you change from port 3000, please also adjust the 'CORS issues workaround url' in 'moneybird-openapi.yaml'

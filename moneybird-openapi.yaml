@@ -5,7 +5,9 @@ info:
   description: 'OpenAPI spec for Moneybird: https://developer.moneybird.com/'
 servers:
   - url: 'https://moneybird.com/api/v2/'
-    description: ''
+    description: 'Moneybird API url'
+  - url: http://localhost:3000/api/v2
+    description: 'CORS issues workaround url'
 paths:
   /administrations:
     summary: Administrations
@@ -522,6 +524,37 @@ paths:
           description: TimeEntry successfully deleted
         '404':
           description: TimeEntry not found
+  /{administrationId}/users:
+    summary: Users
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+    get:
+      summary: List all users
+      description: This endpoint returns all users associated with the account. Optionally, accountants can be included by setting the include_accountants parameter to true.
+      operationId: getUsers
+      tags: [ 'users' ]
+      parameters:
+        - in: query
+          name: include_accountants
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: 'Include accountants in the list of users if set to true.'
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
 components:
   schemas:
     Administration:
@@ -786,7 +819,7 @@ components:
         created_at: "2023-05-09T09:26:35.832Z"
         updated_at: "2023-05-09T09:26:35.852Z"
         version: 1683624395
-        sales_invoices_url: "http://moneybird.dev/123/sales_invoices/2d977c4c1ec0f1e7feff0df2b0411a3a4960e29a5bc785bfe30dd974ca9a2e10/all"
+        sales_invoices_url: "https://moneybird.dev/123/sales_invoices/2d977c4c1ec0f1e7feff0df2b0411a3a4960e29a5bc785bfe30dd974ca9a2e10/all"
         notes: [ ]
         custom_fields: [ ]
         contact_people:
@@ -1284,25 +1317,93 @@ components:
               type: boolean
             paused_duration:
               type: number
+    User:
+      description: Object describing a user associated with the account.
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the user.
+        email:
+          type: string
+          description: The email address of the user.
+        name:
+          type: string
+          description: The name of the user.
+        time_zone:
+          type: string
+          description: The time zone of the user (e.g., "Europe/Amsterdam").
+        language:
+          type: string
+          description: The language preference of the user (e.g., "nl").
+        is_admin:
+          type: boolean
+          description: Indicates if the user has administrative privileges.
+        created_at:
+          type: string
+          description: The timestamp when the user was created.
+        updated_at:
+          type: string
+          description: The timestamp when the user was last updated.
+        email_validated:
+          type: boolean
+          description: Indicates if the user’s email address has been validated.
+        user_type:
+          type: string
+          enum:
+            - owner
+            - employee
+            - accountant
+          description: The type of user (e.g., "owner", "employee", or "accountant").
+        permissions:
+          type: array
+          items:
+            type: string
+            enum:
+              - sales_invoices
+              - documents
+              - estimates
+              - bank
+              - settings
+              - ownership
+              - time_entries
+          description: List of permissions granted to the user.
+      example:
+        id: "446241518578041973"
+        name: "Mo Neybird"
+        created_at: "2025-02-17T10:44:56.902Z"
+        updated_at: "2025-02-17T10:44:57.128Z"
+        email: "info@moneybird.nl"
+        email_validated: true
+        language: "nl"
+        time_zone: "Europe/Amsterdam"
+        user_type: "owner"
+        permissions:
+          - "sales_invoices"
+          - "documents"
+          - "estimates"
+          - "bank"
+          - "settings"
+          - "ownership"
+          - "time_entries"
   securitySchemes:
     OAuth2:
+      type: oauth2
       flows:
         authorizationCode:
           authorizationUrl: 'https://moneybird.com/oauth/authorize'
           tokenUrl: 'https://moneybird.com/oauth/token'
           refreshUrl: 'https://moneybird.com/oauth/token'
           scopes:
-            sales_invoices: ''
-            documents: ''
-            estimates: ''
-            bank: ''
-            time_entries: ''
-            settings: ''
-      type: oauth2
+            sales_invoices: 'Access to sales invoices'
+            documents: 'Access to documents'
+            estimates: 'Access to estimates'
+            bank: 'Access to bank information'
+            time_entries: 'Access to time entries'
+            settings: 'Access to settings'
     ApiToken:
-      scheme: bearer
-      bearerFormat: 84ec207ad0154a508f798e615a998ac1fd752926d00f955fb1df3e144cba44ab
       type: http
+      scheme: bearer
       description: >-
         An API token is only meant for personal use. You can obtain one from
         https://moneybird.com/user/applications/new
@@ -1318,6 +1419,15 @@ tags:
   - name: contacts
     externalDocs:
       url: 'https://developer.moneybird.com/api/contacts/'
+  - name: projects
+    externalDocs:
+      url: 'https://developer.moneybird.com/api/projects/'
   - name: purchase_invoices
     externalDocs:
-      url: https://developer.moneybird.com/api/documents_purchase_invoices/
+      url: 'https://developer.moneybird.com/api/documents_purchase_invoices/'
+  - name: time_entries
+    externalDocs:
+      url: 'https://developer.moneybird.com/api/time_entries/'
+  - name: users
+    externalDocs:
+      url: 'https://developer.moneybird.com/api/users/'
