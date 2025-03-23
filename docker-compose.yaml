@@ -9,7 +9,7 @@ services:
       CONFIG_URL: /moneybird-openapi.yaml
       CORS: "true"
     ports:
-      - "8080"
+      - "8080:8080"
 
   proxy:
     image: nginx:alpine
