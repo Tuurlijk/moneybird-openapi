@@ -159,7 +159,7 @@ paths:
         name: customerId
         schema:
           type: string
-        description: The cutomer id you want to retrieve contacts for
+        description: The customer id you want to retrieve contacts for
     get:
       summary: Get contacts by customer id
       operationId: getContactsByCustomerId
@@ -171,6 +171,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/ContactRead'
           description: The requested contact
+  /{administrationId}/custom_fields:
+    summary: Custom Fields
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+    get:
+      summary: List all custom fields
+      operationId: getCustomFields
+      tags: [ 'custom_fields' ]
+      responses:
+        '200':
+          description: A list of custom fields
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomFieldRead'
   /{administrationId}/documents/purchase_invoices:
     summary: 'Documents: Purchase invoices'
     parameters:
@@ -843,6 +865,28 @@ components:
             data: { }
             created_at: "2023-05-09T09:26:35.847Z"
             updated_at: "2023-05-09T09:26:35.847Z"
+    CustomField:
+      type: object
+      properties:
+        id:
+          type: string
+        administration_id:
+          type: string
+        name:
+          type: string
+        source:
+          type: string
+    CustomFieldRead:
+      type: object
+      properties:
+        id:
+          type: string
+        administration_id:
+          type: string
+        name:
+          type: string
+        source:
+          type: string
     Project:
       type: object
       description: Object which describes a project
@@ -923,7 +967,7 @@ components:
         revenue_invoice:
           type: boolean
     PurchaseInvoiceCreate:
-      description: Object for when creaing a purchase invoice.
+      description: Object for when creating a purchase invoice.
       allOf:
         - $ref: '#/components/schemas/PurchaseInvoice'
         - type: object
@@ -1067,18 +1111,6 @@ components:
               type: array
               items:
                 type: object
-    CustomField:
-      type: object
-      required:
-        - id
-        - value
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        value:
-          type: string
     Event:
       type: object
       properties:
@@ -1419,6 +1451,9 @@ tags:
   - name: contacts
     externalDocs:
       url: 'https://developer.moneybird.com/api/contacts/'
+  - name: custom_fields
+    externalDocs:
+      url: 'https://developer.moneybird.com/api/custom_fields/'
   - name: projects
     externalDocs:
       url: 'https://developer.moneybird.com/api/projects/'
