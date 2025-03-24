@@ -1623,11 +1623,6 @@ components:
           type: string
     TimeEntry:
       type: object
-      required:
-        - user_id
-        - started_at
-        - ended_at
-        - description
       description: Object which describes a time entry
       properties:
         id:
@@ -1706,9 +1701,36 @@ components:
       allOf:
         - $ref: '#/components/schemas/TimeEntry'
     TimeEntryUpdate:
-      description: Object for when updating time entries
-      allOf:
-        - $ref: '#/components/schemas/TimeEntry'
+      description: Object for updating time entries
+      type: object
+      required:
+        - time_entry
+      properties:
+        time_entry:
+          allOf:
+            - $ref: '#/components/schemas/TimeEntry'
+            - type: object
+              required:
+                - ended_at
+              properties:
+                user_id:
+                  type: string
+                started_at:
+                  type: string
+                ended_at:
+                  type: string
+                description:
+                  type: string
+                contact_id:
+                  type: string
+                project_id:
+                  type: string
+                detail_id:
+                  type: string
+                billable:
+                  type: boolean
+                paused_duration:
+                  type: number
     TimeEntryCreate:
       description: Object for creating a time entry
       type: object
