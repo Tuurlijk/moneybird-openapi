@@ -1100,12 +1100,10 @@ components:
           example: true
         created_at:
           type: string
-          format: date-time
           description: When the financial account was created
           example: "2025-02-17T10:47:12.094Z"
         updated_at:
           type: string
-          format: date-time
           description: When the financial account was last updated
           example: "2025-02-17T10:47:12.094Z"
       required:
