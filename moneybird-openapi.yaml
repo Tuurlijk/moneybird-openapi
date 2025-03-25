@@ -310,6 +310,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/PurchaseInvoiceRead'
           description: The updated purchase invoice
+  /{administrationId}/financial_accounts:
+    summary: Financial Accounts
+    parameters:
+      - in: path
+        required: true
+        name: administrationId
+        schema:
+          type: string
+        description: The administration you want to access
+    get:
+      summary: List all financial accounts
+      description:  Retrieve all available financial accounts for the administration
+      operationId: getFinancialAccounts
+      tags: [ 'financial_accounts' ]
+      responses:
+        '200':
+          description: List of financial accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinancialAccount'
   /{administrationId}/identities:
     summary: Identities
     parameters:
@@ -1039,6 +1062,62 @@ components:
           type: string
         source:
           type: string
+    FinancialAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the financial account
+          example: "446241660337128626"
+        administration_id:
+          type: integer
+          description: The ID of the administration the account belongs to
+          example: 123
+        type:
+          type: string
+          description: The type of the financial account
+          example: "CreditCardAccount"
+        name:
+          type: string
+          description: The name of the financial account
+          example: "Creditcard 0001"
+        identifier:
+          type: string
+          description: The identifier of the account
+          example: "0001"
+        currency:
+          type: string
+          description: The currency code used for this account
+          example: "EUR"
+        provider:
+          type: string
+          nullable: true
+          description: The provider of the financial account
+          example: null
+        active:
+          type: boolean
+          description: Whether the financial account is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: When the financial account was created
+          example: "2025-02-17T10:47:12.094Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: When the financial account was last updated
+          example: "2025-02-17T10:47:12.094Z"
+      required:
+        - id
+        - administration_id
+        - type
+        - name
+        - identifier
+        - currency
+        - active
+        - created_at
+        - updated_at
     Identity:
       type: object
       properties:
