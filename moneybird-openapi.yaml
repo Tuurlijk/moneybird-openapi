@@ -783,6 +783,9 @@ components:
       description: Object which describes a contact.
       type: object
       properties:
+        id:
+          type: string
+          description: The ID of the contact.
         company_name:
           type: string
           description: A contact requires a non-blank company_name, firstname or lastname.
@@ -1726,6 +1729,12 @@ components:
           type: string
         updated_at:
           type: string
+        contact:
+          $ref: '#/components/schemas/Contact'
+          nullable: true
+        project:
+          $ref: '#/components/schemas/Project'
+          nullable: true
         notes:
           type: array
           items:
